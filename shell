@@ -1,0 +1,96 @@
+在shell编程时.可以使用参数。Shell有位置参数和内部参数
+1. 位置参数
+　　由系统提供的参数称为位置参数。位置参数的值可以用$N得到，N是一个数字，如果为1，即$1.类似C语言中的数组，
+    Linux会把输入的命令字符串分段并给每段进行标号，标号从0开始。第0号为程序名字，从1开始就表示传递给程序的参数。
+    如$0表示程序的名字，$1表示传递给程序的第一个参数，以此类推。
+2. 内部参数
+　　上述过程中的$0是一个内部变量，它是必须的，而$1则可有可无。和$0一样的内部变量还有以下几个。
+　　$# ----传递给程序的总的参数数目
+　　$? ----上一个代码或者shell程序在shell中退出的情况，如果正常退出则返回0，反之为非0值。
+　　$* ----传递给程序的所有参数组成的字符串。
+ 
+举例说明：
+[root@server tmp]# cat test.sh
+#!/bin/bash
+#test shell
+echo $0
+echo $1
+echo $2
+echo $?
+echo $*
+echo $#
+[root@server tmp]# ./test.sh yema Bhanv edu network
+ 
+./test.sh //程序名称
+Yema //第一个参数
+Bhanv //第二个参数
+0 //程序执行结果
+yema Bhanv edu network //传递参数所组成的字符串
+4 //参数个数
+
+
+sed编辑器逐行处理输入，然后把结果发送到屏幕。
+-i选项：直接作用源文件，源文件将被修改。
+sed命令和选项：
+a\	在当前行后添加一行或多行
+c\	用新文本替换当前行中的文本
+d	删除行
+i\	在当前行之前插入文本
+h	把模式空间的内容复制到暂存缓冲区
+H	把模式空间的内容添加到缓冲区
+g	取出暂存缓冲区的内容，将其复制到模式缓冲区
+G	取出暂存缓冲区的内容，将其追加到模式缓冲区
+l	列出非打印字符
+p	打印行
+n	读入下一行输入，并从下一条而不是第一条命令对其处理
+q	结束或退出sed
+r	从文件中读取输入行
+!	对所选行以外的行应用所有命令
+s	用一个字符串替换另外一个字符串
+
+替换标志：
+g	在行内进行全局替换
+p	打印行
+w	将行写入文件
+x	交换暂存缓冲区和模式空间的内容
+y	将字符转换成另外一个字符
+
+sed例子：
+打印：p命令
+sed ‘/abc/p’ file	
+打印file中包含abc的行。默认情况sed把所有行都打印到屏幕，如果某行匹配到模式，则把该行另外再打印一遍
+sed  -n ‘/abc/p’ file	和上面一样，只是去掉了sed的默认行为，只会打印匹配的行
+删除：d命令
+sed ‘3,$d’ file   	删除从第3行到最后一行的内容。
+sed ‘$d’ file	删除最后一行的内容
+sed ‘/abc/d’	删除包含abc的行。
+sed ‘3d’ file	删除第三行的内容
+替换：s命令
+sed  ‘s/abc/def/g’ file	把行内的所有abc替换成def，如果没有g,则只替换行内的第一个abc
+sed  -n ‘s/abc/def/p’ file	只打印发生替换的那些行
+sed  ‘s/abc/&def/’ file	在所有的abc后面添加def（&表示匹配的内容）
+sed  -n ‘s/abc/def/gp’ file	把所有的abc替换成def，并打印发生替换的那些行
+sed  ‘s#abc#def#g’ file	把所有的abc替换成def，跟在替换s后面的字符就是查找串和 
+替换串之间的分割字符，本例中试#
+指定行的范围：逗号
+sed  -n ‘/abc/,/def/p’ file	打印模式abc到def的行
+sed  -n ‘5/,/def/p’ file	打印从第五行到包含def行之间的行。
+sed /abd/,/def/s/aaa/bbb/g	修改从模式abc到模式def之间的行，把aaa替换成def
+多重编辑-e
+sed  -e ‘1,3d’ -e ‘s/abc/def/g’ file	删除1-3行，然后把其余行的abc替换成def
+读文件：r命令
+sed  ‘/abc/r newfile’ file	在包含abc的行后读入newfile的内容
+写文件：w命令  
+sed  ‘/abc/w newfile’ file	在包含abc的行写入newfile
+追加：a命令     
+sed  ‘/abc/a\def’ file	在包含abc的行后新起一行，写入def
+插入：i命令     
+sed  ‘/abc/i\def’ file	在包含abc的行前新起一行，写入def
+修改：c命令   
+sed  ‘/abc/c\def’ file	在包含abc的行替换成def，旧文本被覆盖
+读取下一行：n命令  
+sed  ‘/abc/{n ; s/aaa/bbb/g;}’ file	读取包含abc的行的下一行，替换aaa为bbb
+转换：y命令       
+sed  ‘y/abc/ABC’ file	将a替换成A，b替换成B，c替换成C（正则表达式元字符不起作用）
+退出：q命令   
+sed  ‘/abc/{ s/aaa/bbb/ ;q; }’ file	在某行包含了abc，把aaa替换成bbb，然后退出sed。
